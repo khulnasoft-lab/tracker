@@ -10,7 +10,6 @@ require (
 	github.com/golang/protobuf v1.5.3
 	github.com/google/cel-go v0.15.1
 	github.com/google/gopacket v1.1.19
-	github.com/hashicorp/golang-lru v0.5.4
 	github.com/hashicorp/golang-lru/v2 v2.0.2
 	github.com/khulnasoft-labs/libbpfgo v0.1.0
 	github.com/khulnasoft-labs/libbpfgo/helpers v0.0.0-20230803034922-193272fd2e0b
