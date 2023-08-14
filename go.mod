@@ -33,7 +33,7 @@ require (
 	gopkg.in/yaml.v2 v2.4.0
 	gotest.tools v2.2.0+incompatible
 	k8s.io/apimachinery v0.27.1
-	kernel.org/pub/linux/libs/security/libcap/cap v1.2.68
+	kernel.org/pub/linux/libs/security/libcap/cap v1.2.69
 )
 
 require (
@@ -169,7 +169,7 @@ require (
 	golang.org/x/sync v0.2.0 // indirect
 	golang.org/x/text v0.9.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	kernel.org/pub/linux/libs/security/libcap/psx v1.2.68 // indirect
+	kernel.org/pub/linux/libs/security/libcap/psx v1.2.69 // indirect
 )
 
 replace github.com/kubernetes/cri-api => k8s.io/cri-api v0.23.5-rc.0
