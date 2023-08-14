@@ -281,6 +281,8 @@ github.com/khulnasoft-labs/libbpfgo v0.4.9-libbpf-1.2.0 h1:T/BxdrOMxl2bY2sAMhQv4
 github.com/khulnasoft-labs/libbpfgo v0.4.9-libbpf-1.2.0/go.mod h1:FGb6v2Rrmtci7mVq00FgGuFKEBfMzJLrdadd+O4y+wg=
 github.com/khulnasoft-labs/libbpfgo/helpers v0.0.0-20230803034922-193272fd2e0b h1:qiX/6b9GgaIx5ADbm9O4RBZyhwmj9SUMDh56PcA1v9k=
 github.com/khulnasoft-labs/libbpfgo/helpers v0.0.0-20230803034922-193272fd2e0b/go.mod h1:HncPci2YFfRckcHhNf6xBRMWsGoOXM1xRrAGAUOPjEA=
+github.com/khulnasoft-labs/libbpfgo/helpers v0.0.0-20230805203903-991860045a53 h1:NyeJDZWKv8ELpw5e6uiS7v4akbUteBK9zU3AstbxjIg=
+github.com/khulnasoft-labs/libbpfgo/helpers v0.0.0-20230805203903-991860045a53/go.mod h1:HncPci2YFfRckcHhNf6xBRMWsGoOXM1xRrAGAUOPjEA=
 github.com/khulnasoft-labs/tracker/types v0.0.0-20230803043803-d3dabb109ca1 h1:dO7Z+l2PQDpW+zjHskjodqVngS9jiGnLqL1heY+Dl98=
 github.com/khulnasoft-labs/tracker/types v0.0.0-20230803043803-d3dabb109ca1/go.mod h1:OE3hHzHBDUkDMa+TwMPNyqcfV4wSkeIlpbZBaZphxJw=
 github.com/kisielk/errcheck v1.5.0/go.mod h1:pFxgyoBC7bSaBwPgfKdkLd5X25qrDl4LWUI2bnpBCr8=
