@@ -885,8 +885,12 @@ k8s.io/utils v0.0.0-20230406110748-d93618cff8a2 h1:qY1Ad8PODbnymg2pRbkyMT/ylpTrC
 k8s.io/utils v0.0.0-20230406110748-d93618cff8a2/go.mod h1:OLgZIPagt7ERELqWJFomSt595RzquPNLL48iOWgYOg0=
 kernel.org/pub/linux/libs/security/libcap/cap v1.2.68 h1:137hV1K92dqIjdd46hSJbiKodzfo3pju8uiG6zj1qHY=
 kernel.org/pub/linux/libs/security/libcap/cap v1.2.68/go.mod h1:zf5gr/6UXqeTEc9fhJG1u+HD/4yhZ0p1vQSyKAI58Io=
+kernel.org/pub/linux/libs/security/libcap/cap v1.2.69 h1:N0m3tKYbkRMmDobh/47ngz+AWeV7PcfXMDi8xu3Vrag=
+kernel.org/pub/linux/libs/security/libcap/cap v1.2.69/go.mod h1:Tk5Ip2TuxaWGpccL7//rAsLRH6RQ/jfqTGxuN/+i/FQ=
 kernel.org/pub/linux/libs/security/libcap/psx v1.2.68 h1:mhMQVtZZ0wXqAAbP9RocmtScWn1EY/s2Ghrt/oejKrc=
 kernel.org/pub/linux/libs/security/libcap/psx v1.2.68/go.mod h1:+l6Ee2F59XiJ2I6WR5ObpC1utCQJZ/VLsEbQCD8RG24=
+kernel.org/pub/linux/libs/security/libcap/psx v1.2.69 h1:IdrOs1ZgwGw5CI+BH6GgVVlOt+LAXoPyh7enr8lfaXs=
+kernel.org/pub/linux/libs/security/libcap/psx v1.2.69/go.mod h1:+l6Ee2F59XiJ2I6WR5ObpC1utCQJZ/VLsEbQCD8RG24=
 rsc.io/binaryregexp v0.2.0/go.mod h1:qTv7/COck+e2FymRvadv62gMdZztPaShugOCi3I+8D8=
 rsc.io/quote/v3 v3.1.0/go.mod h1:yEA65RcK8LyAZtP9Kv3t0HmxON59tX3rD+tICJqUlj0=
 rsc.io/sampler v1.3.0/go.mod h1:T1hPZKmBbMNahiBKFy5HrXp6adAjACjK9JXDnKaTXpA=
