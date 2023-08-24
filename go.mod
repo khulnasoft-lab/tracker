@@ -11,7 +11,7 @@ require (
 	github.com/google/cel-go v0.15.1
 	github.com/google/gopacket v1.1.19
 	github.com/hashicorp/golang-lru v0.5.4
-	github.com/hashicorp/golang-lru/v2 v2.0.2
+	github.com/hashicorp/golang-lru/v2 v2.0.6
 	github.com/khulnasoft-lab/libbpfgo v0.4.9-libbpf-1.2.1
 	github.com/khulnasoft-lab/libbpfgo/helpers v0.0.0-20230814041140-5db26e5cd089
 	github.com/khulnasoft-lab/tracker/types v0.0.0-20230814042419-f6010fec190a
