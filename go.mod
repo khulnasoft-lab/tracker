@@ -34,7 +34,7 @@ require (
 	google.golang.org/protobuf v1.31.0
 	gopkg.in/yaml.v2 v2.4.0
 	gotest.tools v2.2.0+incompatible
-	k8s.io/apimachinery v0.26.2
+	k8s.io/apimachinery v0.28.1
 	kernel.org/pub/linux/libs/security/libcap/cap v1.2.69
 )
 
@@ -175,4 +175,4 @@ require (
 	sigs.k8s.io/yaml v1.3.0 // indirect
 )
 
-replace github.com/kubernetes/cri-api => k8s.io/cri-api v0.23.5-rc.0
+replace github.com/kubernetes/cri-api => k8s.io/cri-api v0.28.1
