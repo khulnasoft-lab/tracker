@@ -3,7 +3,7 @@ module github.com/khulnasoft-lab/tracker
 go 1.18
 
 require (
-	github.com/IBM/fluent-forward-go v0.2.1
+	github.com/IBM/fluent-forward-go v0.2.2
 	github.com/Masterminds/sprig/v3 v3.2.3
 	github.com/containerd/containerd v1.7.5
 	github.com/docker/docker v24.0.5+incompatible
