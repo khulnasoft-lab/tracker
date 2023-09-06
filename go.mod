@@ -14,7 +14,7 @@ require (
 	github.com/hashicorp/golang-lru/v2 v2.0.6
 	github.com/khulnasoft-lab/libbpfgo v0.4.9
 	github.com/khulnasoft-lab/libbpfgo/helpers v0.0.0-20230817232141-cdb19551e282
-	github.com/khulnasoft-lab/tracker/types v0.0.0-20230817233824-029d12f1323b
+	github.com/khulnasoft-lab/tracker/types v0.0.0-20230906224813-188f6feda4d8
 	github.com/kubernetes/cri-api v0.0.0-00010101000000-000000000000
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/open-policy-agent/opa v0.56.0

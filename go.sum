@@ -327,6 +327,8 @@ github.com/khulnasoft-lab/libbpfgo/helpers v0.0.0-20230817232141-cdb19551e282 h1
 github.com/khulnasoft-lab/libbpfgo/helpers v0.0.0-20230817232141-cdb19551e282/go.mod h1:j9jeBhGxuHcbSNc1MYt6YRrQlmoYT+Qa7cwDvKrcGAo=
 github.com/khulnasoft-lab/tracker/types v0.0.0-20230817233824-029d12f1323b h1:OZSv8WOYpQBeX5oVNoPmsy3CyEiWuY+1vp44TaJVH5Y=
 github.com/khulnasoft-lab/tracker/types v0.0.0-20230817233824-029d12f1323b/go.mod h1:ow++U2qU1VUBLwdtNwEqkQFkx797nsQ+h+k7CGbjODI=
+github.com/khulnasoft-lab/tracker/types v0.0.0-20230906224813-188f6feda4d8 h1:wvafY4/e39/MDk5Ml8azK0d4HfEZBsNr1hObzT2ffNQ=
+github.com/khulnasoft-lab/tracker/types v0.0.0-20230906224813-188f6feda4d8/go.mod h1:ow++U2qU1VUBLwdtNwEqkQFkx797nsQ+h+k7CGbjODI=
 github.com/kisielk/errcheck v1.5.0/go.mod h1:pFxgyoBC7bSaBwPgfKdkLd5X25qrDl4LWUI2bnpBCr8=
 github.com/kisielk/gotool v1.0.0/go.mod h1:XhKaO+MFFWcvkIS/tQcRk01m1F5IRFswLeQ+oQHNcck=
 github.com/klauspost/compress v1.16.0 h1:iULayQNOReoYUe+1qtKOqw9CwJv3aNQu8ivo7lw1HU4=
