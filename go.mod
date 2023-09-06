@@ -6,7 +6,7 @@ require (
 	github.com/IBM/fluent-forward-go v0.2.1
 	github.com/Masterminds/sprig/v3 v3.2.3
 	github.com/containerd/containerd v1.7.5
-	github.com/docker/docker v24.0.5+incompatible
+	github.com/docker/docker v24.0.6+incompatible
 	github.com/golang/protobuf v1.5.3
 	github.com/google/cel-go v0.18.0
 	github.com/google/gopacket v1.1.19
