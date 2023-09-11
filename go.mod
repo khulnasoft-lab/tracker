@@ -20,7 +20,7 @@ require (
 	github.com/open-policy-agent/opa v0.56.0
 	github.com/prometheus/client_golang v1.16.0
 	github.com/pyroscope-io/pyroscope v0.37.2
-	github.com/sashabaranov/go-gpt3 v1.4.0
+	github.com/sashabaranov/go-gpt3 v1.15.3
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/viper v1.8.1
 	github.com/stretchr/testify v1.8.4
