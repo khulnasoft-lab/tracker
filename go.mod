@@ -57,8 +57,6 @@ require (
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/khulnasoft-lab/libbpfgo v0.4.8-libbpf-1.2 // indirect
-	github.com/khulnasoft-lab/libbpfgo/helpers v0.0.0-20231006224644-c22a032383c8 // indirect
-	github.com/khulnasoft-lab/tracker/types v0.0.0-20230926232052-76667bc127da // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mattn/go-runewidth v0.0.10 // indirect
