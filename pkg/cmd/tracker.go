@@ -54,7 +54,7 @@ func (r Runner) Run(ctx context.Context) error {
 
 	// Initialize tracker
 
-	err = t.Init()
+	err = t.Init(ctx)
 	if err != nil {
 		return errfmt.Errorf("error initializing Tracker: %v", err)
 	}

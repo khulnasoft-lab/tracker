@@ -130,7 +130,7 @@ expected.
 
     ```text
     1) --scope container # all container events
-    2) --scope '!container' # events from the host only
+    2) --scope not-container # events from the host only
     3) --scope container=new # containers created after tracker-ebf execution
     4) --scope container=3f93da58be3c --events openat
     5) --scope container=new --events openat.args.pathname=/etc/shadow
@@ -150,12 +150,12 @@ expected.
         Do not use given command prefix for these examples as they're filtering
         by command name as well.
 
-1. **Binary Path** `(Operators: =, !=)`
+1. **Executable Path** `(Operators: =, !=)`
 
     ```text
-    1) --scope binary=/usr/bin/ls
-    2) --scope binary=host:/usr/bin/ls
-    3) --scope binary=4026532448:/usr/bin/ls
+    1) --scope executable=/usr/bin/ls
+    2) --scope executable=host:/usr/bin/ls
+    3) --scope executable=4026532448:/usr/bin/ls
     ```
 
     !!! Note

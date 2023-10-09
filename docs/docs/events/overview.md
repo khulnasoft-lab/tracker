@@ -18,8 +18,8 @@ Tracing `execve` events with [policies]:
 
 ```
 cat <<EOF >sample_policy.yaml
-apiVersion: khulnasoft-lab.github.io/v1beta1
-kind: TrackerPolicy
+apiVersion: tracker.khulnasoft.com/v1beta1
+kind: Policy
 metadata:
 	name: sample-policy
 	annotations:
@@ -36,7 +36,7 @@ EOF
 tracker --policies sample_policy.yaml
 ```
 
-If no event is passed with [filters] or [policies], tracker will start with a sane default.
+If no event is passed with [filters] or [policies], tracker will start with a set of default events.
 Below a list of tracker default events.
 
 ### Default events

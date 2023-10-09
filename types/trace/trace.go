@@ -28,12 +28,14 @@ type Event struct {
 	MountNS               int          `json:"mountNamespace"`
 	PIDNS                 int          `json:"pidNamespace"`
 	ProcessName           string       `json:"processName"`
+	Executable            File         `json:"executable"`
 	HostName              string       `json:"hostName"`
 	ContainerID           string       `json:"containerId"`
 	Container             Container    `json:"container,omitempty"`
 	Kubernetes            Kubernetes   `json:"kubernetes,omitempty"`
 	EventID               int          `json:"eventId,string"`
 	EventName             string       `json:"eventName"`
+	PoliciesVersion       uint16       `json:"-"`
 	MatchedPoliciesKernel uint64       `json:"-"`
 	MatchedPoliciesUser   uint64       `json:"-"`
 	MatchedPolicies       []string     `json:"matchedPolicies,omitempty"`
@@ -42,8 +44,10 @@ type Event struct {
 	Syscall               string       `json:"syscall"`
 	StackAddresses        []uint64     `json:"stackAddresses"`
 	ContextFlags          ContextFlags `json:"contextFlags"`
-	EntityID              uint32       `json:"-"`    // task unique identifier (*)
-	Args                  []Argument   `json:"args"` // args are ordered according their appearance in the original event
+	ThreadEntityId        uint32       `json:"threadEntityId"`  // thread task unique identifier (*)
+	ProcessEntityId       uint32       `json:"processEntityId"` // process unique identifier (*)
+	ParentEntityId        uint32       `json:"parentEntityId"`  // parent process unique identifier (*)
+	Args                  []Argument   `json:"args"`            // args are ordered according their appearance in the original event
 	Metadata              *Metadata    `json:"metadata,omitempty"`
 }
 
@@ -80,6 +84,10 @@ type Metadata struct {
 type ContextFlags struct {
 	ContainerStarted bool `json:"containerStarted"`
 	IsCompat         bool `json:"isCompat"`
+}
+
+type File struct {
+	Path string `json:"path"`
 }
 
 // EventOrigin is where a trace.Event occured, it can either be from the host machine or from a container
