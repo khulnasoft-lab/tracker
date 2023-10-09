@@ -25,6 +25,8 @@ var readEvtFlag = eventFlag{
 }
 
 func TestPrepareFilterMapsFromPolicies(t *testing.T) {
+	t.Parallel()
+
 	description := map[string]string{"description": "this is a policy"}
 	tests := []struct {
 		testName           string
@@ -357,13 +359,13 @@ func TestPrepareFilterMapsFromPolicies(t *testing.T) {
 			},
 		},
 		{
-			testName: "!container",
+			testName: "not-container",
 			policy: v1beta1.PolicyFile{
 				Metadata: v1beta1.Metadata{
-					Name: "!container-scope",
+					Name: "not-container-scope",
 				},
 				Spec: v1beta1.PolicySpec{
-					Scope:          []string{"!container"},
+					Scope:          []string{"not-container"},
 					DefaultActions: []string{"log"},
 					Rules: []v1beta1.Rule{
 						{Event: "write"},
@@ -372,12 +374,12 @@ func TestPrepareFilterMapsFromPolicies(t *testing.T) {
 			},
 			expPolicyScopeMap: PolicyScopeMap{
 				0: {
-					policyName: "!container-scope",
+					policyName: "not-container-scope",
 					scopeFlags: []scopeFlag{
 						{
-							full:              "!container",
+							full:              "not-container",
 							scopeName:         "container",
-							operator:          "!",
+							operator:          "not",
 							values:            "",
 							operatorAndValues: "",
 						},
@@ -386,7 +388,7 @@ func TestPrepareFilterMapsFromPolicies(t *testing.T) {
 			},
 			expPolicyEventMap: PolicyEventMap{
 				0: {
-					policyName: "!container-scope",
+					policyName: "not-container-scope",
 					eventFlags: []eventFlag{
 						writeEvtFlag,
 					},
@@ -505,13 +507,13 @@ func TestPrepareFilterMapsFromPolicies(t *testing.T) {
 			},
 		},
 		{
-			testName: "binary=host:/usr/bin/ls",
+			testName: "executable=host:/usr/bin/ls",
 			policy: v1beta1.PolicyFile{
 				Metadata: v1beta1.Metadata{
-					Name: "binary-scope",
+					Name: "executable-scope",
 				},
 				Spec: v1beta1.PolicySpec{
-					Scope:          []string{"binary=host:/usr/bin/ls"},
+					Scope:          []string{"executable=host:/usr/bin/ls"},
 					DefaultActions: []string{"log"},
 					Rules: []v1beta1.Rule{
 						{Event: "write"},
@@ -520,11 +522,11 @@ func TestPrepareFilterMapsFromPolicies(t *testing.T) {
 			},
 			expPolicyScopeMap: PolicyScopeMap{
 				0: {
-					policyName: "binary-scope",
+					policyName: "executable-scope",
 					scopeFlags: []scopeFlag{
 						{
-							full:              "binary=host:/usr/bin/ls",
-							scopeName:         "binary",
+							full:              "executable=host:/usr/bin/ls",
+							scopeName:         "executable",
 							operator:          "=",
 							values:            "host:/usr/bin/ls",
 							operatorAndValues: "=host:/usr/bin/ls",
@@ -534,7 +536,7 @@ func TestPrepareFilterMapsFromPolicies(t *testing.T) {
 			},
 			expPolicyEventMap: PolicyEventMap{
 				0: {
-					policyName: "binary-scope",
+					policyName: "executable-scope",
 					eventFlags: []eventFlag{
 						writeEvtFlag,
 					},
@@ -543,10 +545,47 @@ func TestPrepareFilterMapsFromPolicies(t *testing.T) {
 			skipPolicyCreation: true, // needs root privileges
 		},
 		{
+			testName: "exec=4026532448:/usr/bin/ls",
+			policy: v1beta1.PolicyFile{
+				Metadata: v1beta1.Metadata{
+					Name: "exec-scope",
+				},
+				Spec: v1beta1.PolicySpec{
+					Scope:          []string{"exec=4026532448:/usr/bin/ls"},
+					DefaultActions: []string{"log"},
+					Rules: []v1beta1.Rule{
+						{Event: "write"},
+					},
+				},
+			},
+			expPolicyScopeMap: PolicyScopeMap{
+				0: {
+					policyName: "exec-scope",
+					scopeFlags: []scopeFlag{
+						{
+							full:              "exec=4026532448:/usr/bin/ls",
+							scopeName:         "exec",
+							operator:          "=",
+							values:            "4026532448:/usr/bin/ls",
+							operatorAndValues: "=4026532448:/usr/bin/ls",
+						},
+					},
+				},
+			},
+			expPolicyEventMap: PolicyEventMap{
+				0: {
+					policyName: "exec-scope",
+					eventFlags: []eventFlag{
+						writeEvtFlag,
+					},
+				},
+			},
+		},
+		{
 			testName: "bin=4026532448:/usr/bin/ls",
 			policy: v1beta1.PolicyFile{
 				Metadata: v1beta1.Metadata{
-					Name: "bin-scope",
+					Name: "exec-scope (bin alias)",
 				},
 				Spec: v1beta1.PolicySpec{
 					Scope:          []string{"bin=4026532448:/usr/bin/ls"},
@@ -558,7 +597,7 @@ func TestPrepareFilterMapsFromPolicies(t *testing.T) {
 			},
 			expPolicyScopeMap: PolicyScopeMap{
 				0: {
-					policyName: "bin-scope",
+					policyName: "exec-scope (bin alias)",
 					scopeFlags: []scopeFlag{
 						{
 							full:              "bin=4026532448:/usr/bin/ls",
@@ -572,7 +611,7 @@ func TestPrepareFilterMapsFromPolicies(t *testing.T) {
 			},
 			expPolicyEventMap: PolicyEventMap{
 				0: {
-					policyName: "bin-scope",
+					policyName: "exec-scope (bin alias)",
 					eventFlags: []eventFlag{
 						writeEvtFlag,
 					},
@@ -623,7 +662,7 @@ func TestPrepareFilterMapsFromPolicies(t *testing.T) {
 					Name: "multiple-scope",
 				},
 				Spec: v1beta1.PolicySpec{
-					Scope:          []string{"comm=bash", "follow", "!container", "uid=1000"},
+					Scope:          []string{"comm=bash", "follow", "not-container", "uid=1000"},
 					DefaultActions: []string{"log"},
 					Rules: []v1beta1.Rule{
 						{Event: "write"},
@@ -649,9 +688,9 @@ func TestPrepareFilterMapsFromPolicies(t *testing.T) {
 							operatorAndValues: "",
 						},
 						{
-							full:              "!container",
+							full:              "not-container",
 							scopeName:         "container",
-							operator:          "!",
+							operator:          "not",
 							values:            "",
 							operatorAndValues: "",
 						},
@@ -1746,7 +1785,11 @@ func TestPrepareFilterMapsFromPolicies(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
+
 		t.Run(test.testName, func(t *testing.T) {
+			t.Parallel()
+
 			policyScopeMap, policyEventMap, err := PrepareFilterMapsFromPolicies([]v1beta1.PolicyFile{test.policy})
 			assert.NoError(t, err)
 
@@ -1781,6 +1824,8 @@ func TestPrepareFilterMapsFromPolicies(t *testing.T) {
 }
 
 func TestCreatePolicies(t *testing.T) {
+	t.Parallel()
+
 	testCases := []struct {
 		testName        string
 		scopeFlags      []string
@@ -1907,12 +1952,12 @@ func TestCreatePolicies(t *testing.T) {
 		},
 		// requires root privileges
 		// {
-		// 	testName:   "success - binary=host:/usr/bin/ls",
-		// 	scopeFlags: []string{"binary=host:/usr/bin/ls"},
+		// 	testName:   "success - executable=host:/usr/bin/ls",
+		// 	scopeFlags: []string{"executable=host:/usr/bin/ls"},
 		// },
 		{
-			testName:   "success - binary=/usr/bin/ls",
-			scopeFlags: []string{"binary=/usr/bin/ls"},
+			testName:   "success - executable=/usr/bin/ls",
+			scopeFlags: []string{"executable=/usr/bin/ls"},
 		},
 		{
 			testName:   "success - uts!=deadbeaf",
@@ -2011,7 +2056,11 @@ func TestCreatePolicies(t *testing.T) {
 		},
 	}
 	for _, tc := range testCases {
+		tc := tc
+
 		t.Run(tc.testName, func(t *testing.T) {
+			t.Parallel()
+
 			policyEventsMap, err := PrepareEventMapFromFlags(tc.evtFlags)
 			if tc.expectEvtErr != nil {
 				assert.ErrorContains(t, err, tc.expectEvtErr.Error())

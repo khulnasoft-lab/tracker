@@ -6,6 +6,7 @@ import (
 	"github.com/khulnasoft-lab/tracker/pkg/containers"
 	"github.com/khulnasoft-lab/tracker/pkg/events"
 	"github.com/khulnasoft-lab/tracker/pkg/logger"
+	"github.com/khulnasoft-lab/tracker/pkg/proctree"
 	"github.com/khulnasoft-lab/tracker/pkg/signatures/engine"
 	"github.com/khulnasoft-lab/tracker/types/detect"
 	"github.com/khulnasoft-lab/tracker/types/protocol"
@@ -119,7 +120,17 @@ func (t *Tracker) engineEvents(ctx context.Context, in <-chan *trace.Event) (<-c
 
 // PrepareBuiltinDataSources returns a list of all data sources tracker makes available built-in
 func (t *Tracker) PrepareBuiltinDataSources() []detect.DataSource {
-	return []detect.DataSource{
-		containers.NewDataSource(t.containers),
+	datasources := []detect.DataSource{}
+
+	// Containers Data Source
+	datasources = append(datasources, containers.NewDataSource(t.containers))
+
+	// Process Tree Data Source
+	switch t.config.ProcTree.Source {
+	case proctree.SourceNone:
+	default:
+		datasources = append(datasources, proctree.NewDataSource(t.processTree))
 	}
+
+	return datasources
 }

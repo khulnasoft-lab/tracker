@@ -16,6 +16,7 @@ import (
 	"github.com/khulnasoft-lab/tracker/pkg/cmd/initialize"
 	"github.com/khulnasoft-lab/tracker/pkg/config"
 	tracker "github.com/khulnasoft-lab/tracker/pkg/ebpf"
+	"github.com/khulnasoft-lab/tracker/pkg/proctree"
 	uproc "github.com/khulnasoft-lab/tracker/pkg/utils/proc"
 	"github.com/khulnasoft-lab/tracker/types/trace"
 )
@@ -66,6 +67,11 @@ func startTracker(ctx context.Context, t *testing.T, cfg config.Config, output *
 	cfg.PerfBufferSize = 1024
 	cfg.BlobPerfBufferSize = 1024
 
+	// No process tree in the integration tests
+	cfg.ProcTree = proctree.ProcTreeConfig{
+		Source: proctree.SourceNone,
+	}
+
 	errChan := make(chan error)
 
 	go func() {
@@ -91,7 +97,7 @@ func startTracker(ctx context.Context, t *testing.T, cfg config.Config, output *
 	trc, err := tracker.New(cfg)
 	require.NoError(t, err)
 
-	err = trc.Init()
+	err = trc.Init(ctx)
 	require.NoError(t, err)
 
 	t.Logf("started tracker...\n")

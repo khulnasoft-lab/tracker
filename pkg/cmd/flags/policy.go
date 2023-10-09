@@ -128,7 +128,9 @@ func CreatePolicies(policyScopeMap PolicyScopeMap, policyEventsMap PolicyEventMa
 				continue
 			}
 
-			if scopeFlag.scopeName == "binary" || scopeFlag.scopeName == "bin" {
+			if scopeFlag.scopeName == "exec" || scopeFlag.scopeName == "executable" ||
+				scopeFlag.scopeName == "bin" || scopeFlag.scopeName == "binary" {
+				// TODO: Rename BinaryFilter to ExecutableFilter
 				err := p.BinaryFilter.Parse(scopeFlag.operatorAndValues)
 				if err != nil {
 					return nil, err
@@ -137,8 +139,8 @@ func CreatePolicies(policyScopeMap PolicyScopeMap, policyEventsMap PolicyEventMa
 			}
 
 			if scopeFlag.scopeName == "container" {
-				if scopeFlag.operator == "!" {
-					err := p.ContFilter.Parse(scopeFlag.full) // !container
+				if scopeFlag.operator == "not" {
+					err := p.ContFilter.Parse(scopeFlag.full)
 					if err != nil {
 						return nil, err
 					}

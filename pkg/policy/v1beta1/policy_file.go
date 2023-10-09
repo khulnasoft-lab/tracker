@@ -72,11 +72,11 @@ func (p PolicyFile) Validate() error {
 		return errfmt.Errorf("policy name %s is invalid: %s", p.Name(), err)
 	}
 
-	if p.APIVersion != "khulnasoft-lab.github.io/v1beta1" {
+	if p.APIVersion != "tracker.khulnasoft.com/v1beta1" {
 		return errfmt.Errorf("policy %s, apiVersion not supported", p.Name())
 	}
 
-	if p.Kind != "TrackerPolicy" {
+	if p.Kind != "Policy" {
 		return errfmt.Errorf("policy %s, kind not supported", p.Name())
 	}
 
@@ -129,10 +129,9 @@ func (p PolicyFile) validateScope() error {
 		"uts",
 		"comm",
 		"container",
-		"!container",
+		"not-container",
 		"tree",
-		"binary",
-		"bin",
+		"exec", "executable", "bin", "binary",
 		"follow",
 	}
 
@@ -168,13 +167,16 @@ func (p PolicyFile) validateScope() error {
 
 func parseScope(policyName, scope string) (string, error) {
 	switch scope {
-	case "follow", "!container", "container":
+	case "follow", "not-container", "container":
 		return scope, nil
 	default:
 		operatorIdx := strings.IndexAny(scope, "=!<>")
 
 		if operatorIdx == -1 {
 			return "", errfmt.Errorf("policy %s, scope %s is not valid", policyName, scope)
+		}
+		if operatorIdx == 0 {
+			return scope, nil
 		}
 
 		return scope[:operatorIdx], nil

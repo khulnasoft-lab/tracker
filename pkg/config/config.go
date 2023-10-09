@@ -10,6 +10,7 @@ import (
 	"github.com/khulnasoft-lab/tracker/pkg/events"
 	"github.com/khulnasoft-lab/tracker/pkg/events/queue"
 	"github.com/khulnasoft-lab/tracker/pkg/policy"
+	"github.com/khulnasoft-lab/tracker/pkg/proctree"
 	"github.com/khulnasoft-lab/tracker/pkg/signatures/engine"
 )
 
@@ -20,6 +21,7 @@ type Config struct {
 	Capabilities       *CapabilitiesConfig
 	Output             *OutputConfig
 	Cache              queue.CacheConfig
+	ProcTree           proctree.ProcTreeConfig
 	PerfBufferSize     int
 	BlobPerfBufferSize int
 	MaxPidsCache       int // maximum number of pids to cache per mnt ns (in Tracker.pidsInMntns)

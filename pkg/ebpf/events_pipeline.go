@@ -182,19 +182,6 @@ func (t *Tracker) decodeEvents(outerCtx context.Context, sourceChan chan []byte)
 				stackAddresses = t.getStackAddresses(ctx.StackID)
 			}
 
-			// Currently, the timestamp received from the bpf code is of the monotonic clock.
-			// Todo: The monotonic clock doesn't take into account system sleep time.
-			// Starting from kernel 5.7, we can get the timestamp relative to the system boot time instead which is preferable.
-			if t.config.Output.RelativeTime {
-				// To get the monotonic time since tracker was started, we have to subtract the start time from the timestamp.
-				ctx.Ts -= t.startTime
-				ctx.StartTime -= t.startTime
-			} else {
-				// To get the current ("wall") time, we add the boot time into it.
-				ctx.Ts += t.bootTime
-				ctx.StartTime += t.bootTime
-			}
-
 			containerInfo := t.containers.GetCgroupInfo(ctx.CgroupID).Container
 			containerData := trace.Container{
 				ID:          containerInfo.ContainerId,
@@ -220,7 +207,9 @@ func (t *Tracker) decodeEvents(outerCtx context.Context, sourceChan chan []byte)
 
 			// get an event pointer from the pool
 			evt := t.eventsPool.Get().(*trace.Event)
+
 			// populate all the fields of the event used in this stage, and reset the rest
+
 			evt.Timestamp = int(ctx.Ts)
 			evt.ThreadStartTime = int(ctx.StartTime)
 			evt.ProcessorID = int(ctx.ProcessorId)
@@ -251,6 +240,9 @@ func (t *Tracker) decodeEvents(outerCtx context.Context, sourceChan chan []byte)
 			evt.ContextFlags = flags
 			evt.Syscall = syscall
 			evt.Metadata = nil
+			evt.ThreadEntityId = utils.HashTaskID(ctx.HostTid, ctx.StartTime)
+			evt.ProcessEntityId = utils.HashTaskID(ctx.HostPid, ctx.LeaderStartTime)
+			evt.ParentEntityId = utils.HashTaskID(ctx.HostPpid, ctx.ParentStartTime)
 
 			// If there aren't any policies that need filtering in userland, tracker **may** skip
 			// this event, as long as there aren't any derivatives or signatures that depend on it.
@@ -559,6 +551,13 @@ func (t *Tracker) sinkEvents(ctx context.Context, in <-chan *trace.Event) <-chan
 		for event := range in {
 			if event == nil {
 				continue // might happen during initialization (ctrl+c seg faults)
+			}
+
+			// Is the event enabled for the policies or globally?
+			if !t.policyManager.IsEnabled(event.MatchedPoliciesUser, events.ID(event.EventID)) {
+				logger.Debugw("event dropped because it is not enabled", "event", event.EventName)
+				t.eventsPool.Put(event)
+				continue
 			}
 
 			// Only emit events requested by the user and matched by at least one policy.

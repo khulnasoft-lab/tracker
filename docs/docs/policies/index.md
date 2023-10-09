@@ -10,8 +10,8 @@ You can load multiple (up to 64) policies into Tracker using the --policy flag p
 Following is a sample policy:
 
 ```yaml
-apiVersion: khulnasoft-lab.github.io/v1beta1
-kind: TrackerPolicy
+apiVersion: tracker.khulnasoft.com/v1beta1
+kind: Policy
 metadata:
 	name: overview-policy
 	annotations:
@@ -43,6 +43,6 @@ This policy applies to any workload (global) and will log the dropped_executable
 While specifying event filters is optional, policies must have the `name`, `description`, `scope` and `rules` fields.
 
 !!! Note
-    A current limitation is that only one rule can be defined per any event type in a policy
+    Note that currently only one rule can be defined per any event type in a policy
 
 More information about defining a scope and the available filters can be found in the next sections.

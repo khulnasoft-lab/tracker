@@ -127,4 +127,9 @@ const (
 	ModuleLoad
 	ModuleFree
 	LayoutAndAllocate
+	SignalCgroupMkdir
+	SignalCgroupRmdir
+	SignalSchedProcessFork
+	SignalSchedProcessExec
+	SignalSchedProcessExit
 )
