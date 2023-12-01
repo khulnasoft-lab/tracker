@@ -14,7 +14,7 @@ require (
 	github.com/khulnasoft-lab/libbpfgo v0.6.0-libbpf-1.3
 	github.com/khulnasoft-lab/libbpfgo/helpers v0.0.0-20231130211317-43c2546a4d5b
 	github.com/khulnasoft-lab/tracker/api v0.0.0-20231201062514-3154a2eb24e8
-	github.com/khulnasoft-lab/tracker/types v0.0.0-20231201031803-c595a6721eea
+	github.com/khulnasoft-lab/tracker/types v0.0.0-20231201094304-76d42049d2d7
 	github.com/kubernetes/cri-api v0.27.1
 	github.com/mennanov/fmutils v0.2.0
 	github.com/mitchellh/mapstructure v1.5.0
