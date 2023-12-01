@@ -13,7 +13,7 @@ require (
 	github.com/hashicorp/golang-lru/v2 v2.0.2
 	github.com/khulnasoft-lab/libbpfgo v0.6.0-libbpf-1.3
 	github.com/khulnasoft-lab/libbpfgo/helpers v0.0.0-20231130211317-43c2546a4d5b
-	github.com/khulnasoft-lab/tracker/api v0.0.0-20231201062514-3154a2eb24e8
+	github.com/khulnasoft-lab/tracker/api v0.0.0-20231201190935-6c0f1d4f5117
 	github.com/khulnasoft-lab/tracker/types v0.0.0-20231201031803-c595a6721eea
 	github.com/kubernetes/cri-api v0.27.1
 	github.com/mennanov/fmutils v0.2.0
