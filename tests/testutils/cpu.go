@@ -7,7 +7,7 @@ import (
 const CPUForTests = 0 // CPU to pin test processes to
 
 // PinProccessToCPU pins the current process to a specific CPU
-func PinProccessToCPU(id ...int) error {
+func PinProccessToCPU(id ...int) {
 	if len(id) == 0 {
 		id = append(id, CPUForTests)
 	}
@@ -16,6 +16,5 @@ func PinProccessToCPU(id ...int) error {
 	for _, i := range id {
 		cpuMask.Set(i)
 	}
-
-	return unix.SchedSetaffinity(0, &cpuMask)
+	_ = unix.SchedSetaffinity(0, &cpuMask)
 }

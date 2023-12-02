@@ -163,25 +163,6 @@ func GetPathFromRawAddr(addr map[string]string) (string, error) {
 // Network Protocol Event Types
 //
 
-// GetPacketMetadata converts json to PacketMetadata
-func GetPacketMetadata(
-	event trace.Event,
-	argName string) (
-	trace.PacketMetadata,
-	error) {
-	arg, err := GetTrackerArgumentByName(event, argName, GetArgOps{DefaultArgs: false})
-	if err != nil {
-		return trace.PacketMetadata{}, err
-	}
-
-	argPacketMetadata, ok := arg.Value.(trace.PacketMetadata)
-	if ok {
-		return argPacketMetadata, nil
-	}
-
-	return trace.PacketMetadata{}, fmt.Errorf("packet metadata: type error (should be trace.PacketMetadata, is %T)", arg.Value)
-}
-
 // GetProtoIPv4ByName converts json to ProtoIPv4
 func GetProtoIPv4ByName(
 	event trace.Event,
@@ -217,7 +198,7 @@ func GetProtoIPv4ByName(
 		return argProtoIPv4, nil
 	}
 
-	return trace.ProtoIPv4{}, fmt.Errorf("protocol IPv4: type error (should be trace.ProtoIPv4, is %T)", arg.Value)
+	return trace.ProtoIPv4{}, fmt.Errorf("protocol IPv4: type error")
 }
 
 // GetProtoIPv6ByName converts json to ProtoIPv6
@@ -250,7 +231,7 @@ func GetProtoIPv6ByName(
 		return argProtoIPv6, nil
 	}
 
-	return trace.ProtoIPv6{}, fmt.Errorf("protocol IPv6: type error (should be trace.ProtoIPv6, is %T)", arg.Value)
+	return trace.ProtoIPv6{}, fmt.Errorf("protocol IPv6: type error")
 }
 
 // GetProtoUDPByName converts json to ProtoUDP
@@ -277,7 +258,7 @@ func GetProtoUDPByName(
 		return argProtoUDP, nil
 	}
 
-	return trace.ProtoUDP{}, fmt.Errorf("protocol UDP: type error (should be trace.ProtoUDP, is %T)", arg.Value)
+	return trace.ProtoUDP{}, fmt.Errorf("protocol UDP: type error")
 }
 
 // GetProtoTCPByName converts json to ProtoTCP
@@ -317,7 +298,7 @@ func GetProtoTCPByName(
 		return argProtoTCP, nil
 	}
 
-	return trace.ProtoTCP{}, fmt.Errorf("protocol TCP: type error (should be trace.ProtoTCP, is %T)", arg.Value)
+	return trace.ProtoTCP{}, fmt.Errorf("protocol TCP: type error")
 }
 
 // GetProtoICMPByName converts json to ProtoICMP
@@ -344,7 +325,7 @@ func GetProtoICMPByName(
 		return argProtoICMP, nil
 	}
 
-	return trace.ProtoICMP{}, fmt.Errorf("protocol ICMP: type error (should be trace.ProtoICMP, is %T)", arg.Value)
+	return trace.ProtoICMP{}, fmt.Errorf("protocol ICMP: type error")
 }
 
 // GetProtoICMPv6ByName converts json to ProtoICMPv6
@@ -371,7 +352,7 @@ func GetProtoICMPv6ByName(
 		return argProtoICMPv6, nil
 	}
 
-	return trace.ProtoICMPv6{}, fmt.Errorf("protocol ICMPv6: type error (should be trace.ProtoICMPv6, is %T)", arg.Value)
+	return trace.ProtoICMPv6{}, fmt.Errorf("protocol ICMPv6: type error")
 }
 
 // GetProtoDNSByName converts json to ProtoDNS
@@ -414,7 +395,7 @@ func GetProtoDNSByName(
 		return argProtoDNS, nil
 	}
 
-	return trace.ProtoDNS{}, fmt.Errorf("protocol DNS: type error (should be trace.ProtoDNS, is %T)", arg.Value)
+	return trace.ProtoDNS{}, fmt.Errorf("protocol DNS: type error")
 }
 
 func GetProtoHTTPByName(
@@ -433,5 +414,5 @@ func GetProtoHTTPByName(
 		return argProtoHTTP, nil
 	}
 
-	return trace.ProtoHTTP{}, fmt.Errorf("protocol HTTP: type error (should be trace.ProtoHTTP, is %T)", arg.Value)
+	return trace.ProtoHTTP{}, fmt.Errorf("protocol HTTP: type error")
 }

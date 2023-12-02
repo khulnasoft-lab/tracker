@@ -11,11 +11,7 @@ import (
 )
 
 func main() {
-	err := testutils.PinProccessToCPU()
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "PinProccessToCPU: %v\n", err)
-		os.Exit(1)
-	}
+	testutils.PinProccessToCPU()
 	runtime.LockOSThread()
 	defer runtime.UnlockOSThread()
 
@@ -35,7 +31,7 @@ func main() {
 		syscallsToCall = append(syscallsToCall, events.ID(syscallNum))
 	}
 
-	err = changeOwnComm(callerComm)
+	err := changeOwnComm(callerComm)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
 		os.Exit(1)

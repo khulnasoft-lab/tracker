@@ -217,8 +217,8 @@ namespace:
 
 ```console
 kubectl apply -n tracker-system \
-  -f https://raw.githubusercontent.com/khulnasoft-lab/postee/v2.2.0/deploy/kubernetes/hostPath/postee-pv.yaml \
-  -f https://raw.githubusercontent.com/khulnasoft-lab/postee/v2.2.0/deploy/kubernetes/postee.yaml
+  -f https://raw.githubusercontent.com/aquasecurity/postee/v2.2.0/deploy/kubernetes/hostPath/postee-pv.yaml \
+  -f https://raw.githubusercontent.com/aquasecurity/postee/v2.2.0/deploy/kubernetes/postee.yaml
 ```
 
 Create Tracker DaemonSet in the `tracker-system`, configuring it to send 
@@ -324,6 +324,6 @@ documentation pages.
 [MicroK8s add-ons]: https://microk8s.io/docs/addons
 [kubectl]: https://kubernetes.io/docs/tasks/tools/#kubectl
 [Kubernetes Dashboard]: https://github.com/kubernetes/dashboard
-[Postee]: https://github.com/khulnasoft-lab/postee
+[Postee]: https://github.com/aquasecurity/postee
 [Persistent Volumes]: https://kubernetes.io/docs/concepts/storage/persistent-volumes/
 [MkDocs]: https://www.mkdocs.org

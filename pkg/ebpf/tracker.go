@@ -26,7 +26,6 @@ import (
 	"github.com/khulnasoft-lab/tracker/pkg/cgroup"
 	"github.com/khulnasoft-lab/tracker/pkg/config"
 	"github.com/khulnasoft-lab/tracker/pkg/containers"
-	"github.com/khulnasoft-lab/tracker/pkg/dnscache"
 	"github.com/khulnasoft-lab/tracker/pkg/ebpf/controlplane"
 	"github.com/khulnasoft-lab/tracker/pkg/ebpf/initialization"
 	"github.com/khulnasoft-lab/tracker/pkg/ebpf/probes"
@@ -116,8 +115,6 @@ type Tracker struct {
 	controlPlane *controlplane.Controller
 	// Process Tree
 	processTree *proctree.ProcessTree
-	// DNS Cache
-	dnsCache *dnscache.DNSCache
 	// Specific Events Needs
 	triggerContexts trigger.Context
 	readyCallback   func(gocontext.Context)
@@ -239,12 +236,6 @@ func New(cfg config.Config) (*Tracker, error) {
 		t.eventsState[events.SignalSchedProcessFork] = policy.AlwaysSubmit
 		t.eventsState[events.SignalSchedProcessExec] = policy.AlwaysSubmit
 		t.eventsState[events.SignalSchedProcessExit] = policy.AlwaysSubmit
-	}
-
-	// DNS Cache events
-
-	if t.config.DNSCacheConfig.Enable {
-		t.eventsState[events.NetPacketDNS] = policy.AlwaysSubmit
 	}
 
 	switch t.config.ProcTree.Source {
@@ -417,15 +408,6 @@ func (t *Tracker) Init(ctx gocontext.Context) error {
 	}
 	if err := t.containers.Populate(); err != nil {
 		return errfmt.Errorf("error populating containers: %v", err)
-	}
-
-	// Initialize DNS Cache
-
-	if t.config.DNSCacheConfig.Enable {
-		t.dnsCache, err = dnscache.New(t.config.DNSCacheConfig)
-		if err != nil {
-			return errfmt.Errorf("error initializing dns cache: %v", err)
-		}
 	}
 
 	// Initialize containers related logic
@@ -1049,9 +1031,9 @@ func (t *Tracker) populateBPFMaps() error {
 	if err != nil {
 		return errfmt.WrapError(err)
 	}
-	for _, eventDefinition := range events.Core.GetDefinitions() {
+	for eventDefID, eventDefinition := range events.Core.GetDefinitions() {
 		id32BitU32 := uint32(eventDefinition.GetID32Bit()) // ID32Bit is int32
-		idU32 := uint32(eventDefinition.GetID())           // ID is int32
+		idU32 := uint32(eventDefID)                        // ID is int32
 		err := sys32to64BPFMap.Update(unsafe.Pointer(&id32BitU32), unsafe.Pointer(&idU32))
 		if err != nil {
 			return errfmt.WrapError(err)
@@ -1579,46 +1561,29 @@ func computeFileHash(file *os.File) (string, error) {
 	return hex.EncodeToString(h.Sum(nil)), nil
 }
 
-// getSelfLoadedPrograms returns a map of all programs loaded by tracker.
 func (t *Tracker) getSelfLoadedPrograms(kprobesOnly bool) map[string]int {
-	selfLoadedPrograms := map[string]int{} // map k: symbol name, v: number of hooks
-
-	log := func(event string, program string) {
-		logger.Debugw("self loaded program", "event", event, "program", program)
-	}
+	selfLoadedPrograms := map[string]int{} // Symbol to number of hooks of this symbol (kprobe and kretprobe will yield 2)
 
 	for tr := range t.eventsState {
 		if !events.Core.IsDefined(tr) {
 			continue
 		}
 
-		definition := events.Core.GetDefinitionByID(tr)
-
-		for _, depProbes := range definition.GetDependencies().GetProbes() {
-			currProbe := t.probes.GetProbeByHandle(depProbes.GetHandle())
-
-			name := ""
-			switch p := currProbe.(type) {
-			case *probes.TraceProbe:
-				// Only k[ret]probes may use ftrace
-				if kprobesOnly {
-					switch p.GetProbeType() {
-					case probes.KProbe, probes.KretProbe:
-					default:
-						continue
-					}
-				}
-				log(definition.GetName(), p.GetProgramName())
-				name = p.GetEventName()
-			case *probes.Uprobe:
-				log(definition.GetName(), p.GetProgramName())
-				continue
-			case *probes.CgroupProbe:
-				log(definition.GetName(), p.GetProgramName())
+		givenEventDefinition := events.Core.GetDefinitionByID(tr)
+		for _, eventsProbe := range givenEventDefinition.GetDependencies().GetProbes() {
+			probe, ok := t.probes.GetProbeByHandle(eventsProbe.GetHandle()).(*probes.TraceProbe)
+			if !ok {
 				continue
 			}
 
-			selfLoadedPrograms[name]++
+			if kprobesOnly {
+				// Currently, of the program types that tracker uses, only k[ret]probe may use ftrace behind the scenes
+				if probType := probe.GetProbeType(); probType != probes.KProbe && probType != probes.KretProbe {
+					continue
+				}
+			}
+
+			selfLoadedPrograms[probe.GetEventName()]++
 		}
 	}
 
@@ -1637,8 +1602,6 @@ func (t *Tracker) invokeInitEvents(out chan *trace.Event) {
 		event.MatchedPolicies = t.config.Policies.MatchedNames(matchedPolicies)
 	}
 
-	// Initial namespace events
-
 	emit = t.eventsState[events.InitNamespaces].Emit
 	if emit > 0 {
 		systemInfoEvent := events.InitNamespacesEvent()
@@ -1646,8 +1609,6 @@ func (t *Tracker) invokeInitEvents(out chan *trace.Event) {
 		out <- &systemInfoEvent
 		_ = t.stats.EventCount.Increment()
 	}
-
-	// Initial existing containers events (1 event per container)
 
 	emit = t.eventsState[events.ExistingContainer].Emit
 	if emit > 0 {
@@ -1657,8 +1618,6 @@ func (t *Tracker) invokeInitEvents(out chan *trace.Event) {
 			_ = t.stats.EventCount.Increment()
 		}
 	}
-
-	// Ftrace hook event
 
 	emit = t.eventsState[events.FtraceHook].Emit
 	if emit > 0 {

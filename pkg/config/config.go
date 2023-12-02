@@ -6,7 +6,6 @@ import (
 	"github.com/khulnasoft-lab/libbpfgo/helpers"
 
 	"github.com/khulnasoft-lab/tracker/pkg/containers/runtime"
-	"github.com/khulnasoft-lab/tracker/pkg/dnscache"
 	"github.com/khulnasoft-lab/tracker/pkg/errfmt"
 	"github.com/khulnasoft-lab/tracker/pkg/events"
 	"github.com/khulnasoft-lab/tracker/pkg/events/queue"
@@ -34,7 +33,6 @@ type Config struct {
 	NoContainersEnrich bool
 	EngineConfig       engine.Config
 	MetricsEnabled     bool
-	DNSCacheConfig     dnscache.Config
 }
 
 // Validate does static validation of the configuration

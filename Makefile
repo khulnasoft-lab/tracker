@@ -916,7 +916,7 @@ protoc:
 		--go_out=. \
 		--go_opt=paths=source_relative \
 		--go-grpc_out=. \
-		--go-grpc_opt=paths=source_relative $(TRACKER_PROTOS) 
+		--go-grpc_opt=paths=source_relative $(TRACKER_PROTOS)
 
 #
 # man pages
@@ -941,14 +941,8 @@ $(MAN_DIR)/%: $(MARKDOWN_DIR)/%.md \
 		$< \
 		-o $@
 
-.PHONY: clean-man
-clean-man:
-	@echo Cleaning $(MAN_DIR)
-	@rm -f $(MAN_DIR)/*
-
 .PHONY: man
-man: clean-man $(MAN_FILES)
-
+man: $(MAN_FILES)
 
 #
 # clean

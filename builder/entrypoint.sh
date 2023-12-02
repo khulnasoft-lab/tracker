@@ -21,22 +21,21 @@ CAPABILITIES_DROP=${CAPABILITIES_DROP:=""}
 run_tracker() {
     mkdir -p $TRACKER_OUT
 
-    if [ $# -ne 0 ]; then
+    echo "INFO: starting tracker..."
+
+    if [[ $# -ne 0 ]]; then
         # no default arguments, just given ones
-        $TRACKER_EXE "$@"
+        $TRACKER_EXE $@
     else
         # default arguments
         $TRACKER_EXE \
-        --metrics \
-        --cache cache-type=mem \
-        --cache mem-cache-size=512 \
-        --capabilities bypass=$CAPABILITIES_BYPASS \
-        --capabilities add=$CAPABILITIES_ADD \
-        --capabilities drop=$CAPABILITIES_DROP \
-        --output=json \
-        --output=option:parse-arguments \
-        --output=option:relative-time \
-        --events signatures,container_create,container_remove
+            --metrics \
+            --output=option:parse-arguments \
+            --cache cache-type=mem \
+            --cache mem-cache-size=512 \
+            --capabilities bypass=$CAPABILITIES_BYPASS \
+            --capabilities add=$CAPABILITIES_ADD \
+            --capabilities drop=$CAPABILITIES_DROP
     fi
 
     tracker_ret=$?

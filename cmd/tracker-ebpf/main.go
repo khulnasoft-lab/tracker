@@ -98,11 +98,6 @@ func main() {
 				Usage:   "process tree options. run '--proctree help' for more info.",
 			},
 			&cli.StringSliceFlag{
-				Name:  "dnscache",
-				Value: cli.NewStringSlice("none"),
-				Usage: "dns cache options. run '--dnscache help' for more info",
-			},
-			&cli.StringSliceFlag{
 				Name:  "cri",
 				Usage: "define connected container runtimes. run '--cri help' for more info.",
 				Value: cli.NewStringSlice(),

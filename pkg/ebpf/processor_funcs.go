@@ -327,7 +327,7 @@ func (t *Tracker) processPrintMemDump(event *trace.Event) error {
 //
 
 // normalizeEventCtxTimes normalizes the event context timings to be relative to tracker start time
-// or current time in nanoseconds.
+// or current time.
 func (t *Tracker) normalizeEventCtxTimes(event *trace.Event) error {
 	//
 	// Currently, the timestamp received from the bpf code is of the monotonic clock.
@@ -347,18 +347,6 @@ func (t *Tracker) normalizeEventCtxTimes(event *trace.Event) error {
 	}
 
 	return nil
-}
-
-// getOrigEvtTimestamp returns the original timestamp of the event.
-// To be used only when the event timestamp was normalized via normalizeEventCtxTimes.
-func (t *Tracker) getOrigEvtTimestamp(event *trace.Event) int {
-	if t.config.Output.RelativeTime {
-		// if the time was normalized relative to tracker start time, add the start time back
-		return event.Timestamp + int(t.startTime)
-	}
-
-	// if the time was normalized to "wall" time, subtract the boot time
-	return event.Timestamp - int(t.bootTime)
 }
 
 // processSchedProcessFork processes a sched_process_fork event by normalizing the start time.

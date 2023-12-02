@@ -426,23 +426,6 @@ func (arg *Argument) UnmarshalJSON(b []byte) error {
 		}
 
 		arg.Value = argProtoHTTPResponse
-	case "trace.PacketMetadata":
-		var argPacketMetadata PacketMetadata
-		if arg.Value != nil {
-			argPacketMetadataMap, ok := arg.Value.(map[string]interface{})
-			if !ok {
-				return fmt.Errorf("packet metadata: type error")
-			}
-			if err != nil {
-				return err
-			}
-			argPacketMetadata, err = jsonConvertToPacketMetadata(argPacketMetadataMap)
-			if err != nil {
-				return err
-			}
-		}
-
-		arg.Value = argPacketMetadata
 	}
 
 	return nil
@@ -929,7 +912,6 @@ func jsonConvertToProtoDNSResourceRecordType(argMap map[string]interface{}) (Pro
 	// SOA conversion
 	soa, exists := argMap["SOA"]
 	if !exists {
-		ProtoDNSResourceRecord := 
 		return ProtoDNSResourceRecord{}, fmt.Errorf("SOA not found in ProtoDNSResourceRecord arg")
 	}
 
@@ -1480,16 +1462,6 @@ func jsonConvertToProtoHTTPResponseArg(argMap map[string]interface{}) (ProtoHTTP
 	}, nil
 }
 
-func jsonConvertToPacketMetadata(argMap map[string]interface{}) (PacketMetadata, error) {
-	uint8Types := map[string]uint8{
-		"direction": 0,
-	}
-	jsonConvertToUint8Types(argMap, uint8Types)
-	return PacketMetadata{
-		Direction: PacketDirection(uint8Types["direction"]),
-	}, nil
-}
-
 func jsonConvertToStringTypes(argMap map[string]interface{}, stringTypes map[string]string) (map[string]string, error) {
 	for key := range stringTypes {
 		val, ok := argMap[key]
@@ -1625,33 +1597,6 @@ func jsonConvertToUint32Types(argMap map[string]interface{}, uint32Types map[str
 	}
 
 	return uint32Types, nil
-}
-
-func jsonConvertToUintTypes(argMap map[string]interface{}, uintTypes map[string]uint) (map[string]uint, error) {
-	for key := range uintTypes {
-		val, ok := argMap[key]
-		if !ok {
-			return uintTypes, fmt.Errorf("key not found in argMap %s", key)
-		}
-
-		var int64Val int64
-		if val != nil {
-			valJsonNum, ok := val.(json.Number)
-			if !ok {
-				return uintTypes, fmt.Errorf("couldn't convert key to uint8 %s", key)
-			}
-
-			var err error
-			int64Val, err = valJsonNum.Int64()
-			if err != nil {
-				return uintTypes, err
-			}
-		}
-
-		uintTypes[key] = uint(int64Val)
-	}
-
-	return uintTypes, nil
 }
 
 func jsonConvertToInt64Types(argMap map[string]interface{}, int64Types map[string]int64) (map[string]int64, error) {
