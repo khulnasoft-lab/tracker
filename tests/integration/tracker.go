@@ -2,13 +2,14 @@ package integration
 
 import (
 	"context"
-	"fmt"
 	"path/filepath"
 	"strconv"
 	"sync"
 	"syscall"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/require"
 
 	"github.com/khulnasoft-lab/libbpfgo/helpers"
 
@@ -26,12 +27,6 @@ type eventBuffer struct {
 	events []trace.Event
 }
 
-func newEventBuffer() *eventBuffer {
-	return &eventBuffer{
-		events: make([]trace.Event, 0),
-	}
-}
-
 // addEvent adds an event to the eventBuffer
 func (b *eventBuffer) addEvent(evt trace.Event) {
 	b.mu.Lock()
@@ -45,7 +40,7 @@ func (b *eventBuffer) clear() {
 	b.mu.Lock()
 	defer b.mu.Unlock()
 
-	b.events = make([]trace.Event, 0)
+	b.events = b.events[:0]
 }
 
 // len returns the number of events in the eventBuffer
@@ -56,37 +51,20 @@ func (b *eventBuffer) len() int {
 	return len(b.events)
 }
 
-// getCopy returns a copy of the eventBuffer events
-func (b *eventBuffer) getCopy() []trace.Event {
-	b.mu.RLock()
-	defer b.mu.RUnlock()
-
-	evts := make([]trace.Event, len(b.events))
-	copy(evts, b.events)
-
-	return evts
-}
-
 // load tracker into memory with args
-func startTracker(ctx context.Context, t *testing.T, cfg config.Config, output *config.OutputConfig, capture *config.CaptureConfig) (*tracker.Tracker, error) {
+func startTracker(ctx context.Context, t *testing.T, cfg config.Config, output *config.OutputConfig, capture *config.CaptureConfig) *tracker.Tracker {
 	initialize.SetLibbpfgoCallbacks()
 
 	kernelConfig, err := initialize.KernelConfig()
-	if err != nil {
-		return nil, err
-	}
+	require.NoError(t, err)
 
 	cfg.KernelConfig = kernelConfig
 
 	osInfo, err := helpers.GetOSInfo()
-	if err != nil {
-		return nil, err
-	}
+	require.NoError(t, err)
 
 	err = initialize.BpfObject(&cfg, kernelConfig, osInfo, "/tmp/tracker", "")
-	if err != nil {
-		return nil, err
-	}
+	require.NoError(t, err)
 
 	if capture == nil {
 		capture = prepareCapture()
@@ -126,23 +104,18 @@ func startTracker(ctx context.Context, t *testing.T, cfg config.Config, output *
 	cfg.NoContainersEnrich = true
 
 	trc, err := tracker.New(cfg)
-	if err != nil {
-		return nil, err
-	}
+	require.NoError(t, err)
 
 	err = trc.Init(ctx)
-	if err != nil {
-		return nil, err
-	}
+	require.NoError(t, err)
 
+	t.Logf("started tracker...\n")
 	go func() {
 		err := trc.Run(ctx)
-		if err != nil {
-			errChan <- fmt.Errorf("error while running tracker: %s", err)
-		}
+		require.NoError(t, err, "tracker run failed")
 	}()
 
-	return trc, nil
+	return trc
 }
 
 // prepareCapture prepares a capture config for tracker
@@ -159,79 +132,61 @@ func prepareCapture() *config.CaptureConfig {
 
 // wait for tracker to start (or timeout)
 // in case of timeout, the test will fail
-func waitForTrackerStart(trc *tracker.Tracker) error {
-	const timeout = 10 * time.Second
-
-	statusCheckTicker := time.NewTicker(1 * time.Second)
-	defer statusCheckTicker.Stop()
-	timeoutTicker := time.NewTicker(timeout)
-	defer timeoutTicker.Stop()
+func waitForTrackerStart(t *testing.T, trc *tracker.Tracker) {
+	const checkTimeout = 10 * time.Second
+	ticker := time.NewTicker(100 * time.Millisecond)
 
 	for {
 		select {
-		case <-statusCheckTicker.C:
+		case <-ticker.C:
 			if trc.Running() {
-				return nil
+				return
 			}
-		case <-timeoutTicker.C:
-			return fmt.Errorf("timed out on waiting for tracker to start")
+		case <-time.After(checkTimeout):
+			t.Logf("timed out on running tracker\n")
+			t.FailNow()
 		}
 	}
 }
 
 // wait for tracker to stop (or timeout)
 // in case of timeout, the test will continue since all tests already passed
-func waitForTrackerStop(trc *tracker.Tracker) error {
-	const timeout = 10 * time.Second
-
-	statusCheckTicker := time.NewTicker(1 * time.Second)
-	defer statusCheckTicker.Stop()
-	timeoutTicker := time.NewTicker(timeout)
-	defer timeoutTicker.Stop()
+func waitForTrackerStop(t *testing.T, trc *tracker.Tracker) {
+	const checkTimeout = 10 * time.Second
+	ticker := time.NewTicker(100 * time.Millisecond)
 
 	for {
 		select {
-		case <-statusCheckTicker.C:
+		case <-ticker.C:
 			if !trc.Running() {
-				return nil
+				t.Logf("stopped tracker\n")
+				return
 			}
-		case <-timeoutTicker.C:
-			return fmt.Errorf("timed out on stopping tracker")
+		case <-time.After(checkTimeout):
+			t.Logf("timed out on stopping tracker\n")
+			return
 		}
 	}
 }
 
 // wait for tracker buffer to fill up with expected number of events (or timeout)
 // in case of timeout, the test will fail
-func waitForTrackerOutputEvents(t *testing.T, waitFor time.Duration, actual *eventBuffer, expectedEvts int, failOnTimeout bool) error {
-	if waitFor > 0 {
-		t.Logf("  . waiting events collection for %s", waitFor.String())
-		time.Sleep(waitFor)
-	}
-
-	const timeout = 5 * time.Second
-
-	statusCheckTicker := time.NewTicker(1 * time.Second)
-	defer statusCheckTicker.Stop()
-	timeoutTicker := time.NewTicker(timeout)
-	defer timeoutTicker.Stop()
-
-	t.Logf("  . waiting for at least %d event(s) for %s", expectedEvts, timeout.String())
-	defer t.Logf("  . done waiting for %d event(s)", expectedEvts)
+func waitForTrackerOutputEvents(t *testing.T, actual *eventBuffer, now time.Time, expectedEvts int, failOnTimeout bool) {
+	const checkTimeout = 5 * time.Second
+	ticker := time.NewTicker(100 * time.Millisecond)
 
 	for {
 		select {
-		case <-statusCheckTicker.C:
-			len := actual.len()
-			t.Logf("  . got %d event(s) so far", len)
-			if len >= expectedEvts {
-				return nil
+		case <-ticker.C:
+			if actual.len() >= expectedEvts {
+				return
 			}
-		case <-timeoutTicker.C:
+		case <-time.After(checkTimeout):
 			if failOnTimeout {
-				return fmt.Errorf("timed out on waiting for %d event(s)", expectedEvts)
+				t.Logf("timed out on output\n")
+				t.FailNow()
 			}
-			return nil
+			return
 		}
 	}
 }

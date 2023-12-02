@@ -137,8 +137,7 @@ for TEST in $TESTS; do
         --output option:parse-arguments \
         --log file:$SCRIPT_TMP_DIR/tracker-log-$$ \
         --signatures-dir "$SIG_DIR" \
-        --scope comm=echo,mv,ls,tracker,proctreetester,ping \
-        --dnscache enable \
+        --scope comm=echo,mv,ls,tracker,proctreetester \
         --events "$TEST" &
 
     # Wait tracker to start

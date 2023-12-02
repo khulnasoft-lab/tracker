@@ -17,7 +17,7 @@ import (
 func TestContextSize(t *testing.T) {
 	t.Parallel()
 
-	var v EventContext
+	var v Context
 	size := int(unsafe.Sizeof(v))
 	assert.Equal(t, size, int(v.GetSizeBytes()))
 }

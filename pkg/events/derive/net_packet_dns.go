@@ -33,17 +33,12 @@ func deriveDNSEvents(event trace.Event) ([]interface{}, error) {
 		return nil, parsePacketError()
 	}
 
-	md := trace.PacketMetadata{
-		Direction: getPacketDirection(&event),
-	}
-
 	return []interface{}{
 		net.srcIP,
 		net.dstIP,
 		net.srcPort,
 		net.dstPort,
-		md,
-		*dns,
+		dns,
 	}, nil
 }
 

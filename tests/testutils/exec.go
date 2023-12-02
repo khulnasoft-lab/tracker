@@ -49,10 +49,7 @@ func ParseCmd(fullCmd string) (string, []string, error) {
 
 // ExecPinnedCmdWithTimeout executes a cmd with a timeout and returns the PID of the process.
 func ExecPinnedCmdWithTimeout(command string, timeout time.Duration) (int, error) {
-	err := PinProccessToCPU() // pin this goroutine to a specific CPU
-	if err != nil {
-		return 0, &failedToPinProcessToCPU{command: command, err: err}
-	}
+	PinProccessToCPU()             // pin this goroutine to a specific CPU
 	runtime.LockOSThread()         // wire this goroutine to a specific OS thread
 	defer runtime.UnlockOSThread() // unlock the thread when we're done
 
@@ -74,11 +71,8 @@ func ExecPinnedCmdWithTimeout(command string, timeout time.Duration) (int, error
 		cmdDone <- cmd.Wait() // wait for command to exit
 	}()
 
-	timeoutTicker := time.NewTicker(timeout)
-	defer timeoutTicker.Stop()
-
 	select {
-	case <-timeoutTicker.C:
+	case <-time.After(timeout):
 		err := cmd.Process.Kill()
 		if err != nil {
 			return pid, &failedToKillProcess{command: command, err: err}
@@ -123,7 +117,7 @@ func ExecCmdBgWithSudoAndCtx(ctx context.Context, command string) (int, chan err
 	wg.Add(1)
 	go func(pid *atomic.Int64) {
 		// Will make the command to inherit the current process' CPU affinity.
-		_ = PinProccessToCPU()         // pin this goroutine to a specific CPU
+		PinProccessToCPU()             // pin this goroutine to a specific CPU
 		runtime.LockOSThread()         // wire this goroutine to a specific OS thread
 		defer runtime.UnlockOSThread() // unlock the thread when we're done
 

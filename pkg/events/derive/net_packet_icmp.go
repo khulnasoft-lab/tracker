@@ -16,12 +16,23 @@ func NetPacketICMP() DeriveFunction {
 
 func deriveNetPacketICMPArgs() deriveArgsFunction {
 	return func(event trace.Event) ([]interface{}, error) {
+		var ok bool
+		var payload []byte
 		var srcIP net.IP
 		var dstIP net.IP
 
-		payload, err := parsePayloadArg(&event)
-		if err != nil {
-			return nil, err
+		// sanity checks
+
+		payloadArg := events.GetArg(&event, "payload")
+		if payloadArg == nil {
+			return nil, noPayloadError()
+		}
+		if payload, ok = payloadArg.Value.([]byte); !ok {
+			return nil, nonByteArgError()
+		}
+		payloadSize := len(payload)
+		if payloadSize < 1 {
+			return nil, emptyPayloadError()
 		}
 
 		// event retval encodes layer 3 protocol type
@@ -60,16 +71,12 @@ func deriveNetPacketICMPArgs() deriveArgsFunction {
 			var icmp trace.ProtoICMP
 
 			copyICMPToProtoICMP(l4, &icmp)
-			md := trace.PacketMetadata{
-				Direction: getPacketDirection(&event),
-			}
 
 			// TODO: parse subsequent ICMP type layers
 
 			return []interface{}{
 				srcIP,
 				dstIP,
-				md,
 				icmp,
 			}, nil
 		}

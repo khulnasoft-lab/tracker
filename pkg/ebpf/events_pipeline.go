@@ -152,7 +152,7 @@ func (t *Tracker) queueEvents(ctx context.Context, in <-chan *trace.Event) (chan
 // decodeEvents is the event decoding pipeline stage. For each received event, it goes
 // through a decoding function that will decode the event from its raw format into a
 // trace.Event type.
-func (t *Tracker) decodeEvents(ctx context.Context, sourceChan chan []byte) (<-chan *trace.Event, <-chan error) {
+func (t *Tracker) decodeEvents(outerCtx context.Context, sourceChan chan []byte) (<-chan *trace.Event, <-chan error) {
 	out := make(chan *trace.Event, 10000)
 	errc := make(chan error, 1)
 	sysCompatTranslation := events.Core.IDs32ToIDs()
@@ -161,8 +161,8 @@ func (t *Tracker) decodeEvents(ctx context.Context, sourceChan chan []byte) (<-c
 		defer close(errc)
 		for dataRaw := range sourceChan {
 			ebpfMsgDecoder := bufferdecoder.New(dataRaw)
-			var eCtx bufferdecoder.EventContext
-			if err := ebpfMsgDecoder.DecodeContext(&eCtx); err != nil {
+			var ctx bufferdecoder.Context
+			if err := ebpfMsgDecoder.DecodeContext(&ctx); err != nil {
 				t.handleError(err)
 				continue
 			}
@@ -171,7 +171,7 @@ func (t *Tracker) decodeEvents(ctx context.Context, sourceChan chan []byte) (<-c
 				t.handleError(err)
 				continue
 			}
-			eventId := events.ID(eCtx.EventID)
+			eventId := events.ID(ctx.EventID)
 			if !events.Core.IsDefined(eventId) {
 				t.handleError(errfmt.Errorf("failed to get configuration of event %d", eventId))
 				continue
@@ -187,10 +187,10 @@ func (t *Tracker) decodeEvents(ctx context.Context, sourceChan chan []byte) (<-c
 			// Add stack trace if needed
 			var stackAddresses []uint64
 			if t.config.Output.StackAddresses {
-				stackAddresses = t.getStackAddresses(eCtx.StackID)
+				stackAddresses = t.getStackAddresses(ctx.StackID)
 			}
 
-			containerInfo := t.containers.GetCgroupInfo(eCtx.CgroupID).Container
+			containerInfo := t.containers.GetCgroupInfo(ctx.CgroupID).Container
 			containerData := trace.Container{
 				ID:          containerInfo.ContainerId,
 				ImageName:   containerInfo.Image,
@@ -203,11 +203,11 @@ func (t *Tracker) decodeEvents(ctx context.Context, sourceChan chan []byte) (<-c
 				PodUID:       containerInfo.Pod.UID,
 			}
 
-			flags := parseContextFlags(containerData.ID, eCtx.Flags)
+			flags := parseContextFlags(containerData.ID, ctx.Flags)
 			syscall := ""
-			if eCtx.Syscall != noSyscall {
+			if ctx.Syscall != noSyscall {
 				var err error
-				syscall, err = parseSyscallID(int(eCtx.Syscall), flags.IsCompat, sysCompatTranslation)
+				syscall, err = parseSyscallID(int(ctx.Syscall), flags.IsCompat, sysCompatTranslation)
 				if err != nil {
 					logger.Debugw("Originated syscall parsing", "error", err)
 				}
@@ -218,39 +218,39 @@ func (t *Tracker) decodeEvents(ctx context.Context, sourceChan chan []byte) (<-c
 
 			// populate all the fields of the event used in this stage, and reset the rest
 
-			evt.Timestamp = int(eCtx.Ts)
-			evt.ThreadStartTime = int(eCtx.StartTime)
-			evt.ProcessorID = int(eCtx.ProcessorId)
-			evt.ProcessID = int(eCtx.Pid)
-			evt.ThreadID = int(eCtx.Tid)
-			evt.ParentProcessID = int(eCtx.Ppid)
-			evt.HostProcessID = int(eCtx.HostPid)
-			evt.HostThreadID = int(eCtx.HostTid)
-			evt.HostParentProcessID = int(eCtx.HostPpid)
-			evt.UserID = int(eCtx.Uid)
-			evt.MountNS = int(eCtx.MntID)
-			evt.PIDNS = int(eCtx.PidID)
-			evt.ProcessName = string(bytes.TrimRight(eCtx.Comm[:], "\x00"))
-			evt.HostName = string(bytes.TrimRight(eCtx.UtsName[:], "\x00"))
-			evt.CgroupID = uint(eCtx.CgroupID)
+			evt.Timestamp = int(ctx.Ts)
+			evt.ThreadStartTime = int(ctx.StartTime)
+			evt.ProcessorID = int(ctx.ProcessorId)
+			evt.ProcessID = int(ctx.Pid)
+			evt.ThreadID = int(ctx.Tid)
+			evt.ParentProcessID = int(ctx.Ppid)
+			evt.HostProcessID = int(ctx.HostPid)
+			evt.HostThreadID = int(ctx.HostTid)
+			evt.HostParentProcessID = int(ctx.HostPpid)
+			evt.UserID = int(ctx.Uid)
+			evt.MountNS = int(ctx.MntID)
+			evt.PIDNS = int(ctx.PidID)
+			evt.ProcessName = string(bytes.TrimRight(ctx.Comm[:], "\x00"))
+			evt.HostName = string(bytes.TrimRight(ctx.UtsName[:], "\x00"))
+			evt.CgroupID = uint(ctx.CgroupID)
 			evt.ContainerID = containerData.ID
 			evt.Container = containerData
 			evt.Kubernetes = kubernetesData
-			evt.EventID = int(eCtx.EventID)
+			evt.EventID = int(ctx.EventID)
 			evt.EventName = eventDefinition.GetName()
-			evt.MatchedPoliciesKernel = eCtx.MatchedPolicies
+			evt.MatchedPoliciesKernel = ctx.MatchedPolicies
 			evt.MatchedPoliciesUser = 0
 			evt.MatchedPolicies = []string{}
 			evt.ArgsNum = int(argnum)
-			evt.ReturnValue = int(eCtx.Retval)
+			evt.ReturnValue = int(ctx.Retval)
 			evt.Args = args
 			evt.StackAddresses = stackAddresses
 			evt.ContextFlags = flags
 			evt.Syscall = syscall
 			evt.Metadata = nil
-			evt.ThreadEntityId = utils.HashTaskID(eCtx.HostTid, eCtx.StartTime)
-			evt.ProcessEntityId = utils.HashTaskID(eCtx.HostPid, eCtx.LeaderStartTime)
-			evt.ParentEntityId = utils.HashTaskID(eCtx.HostPpid, eCtx.ParentStartTime)
+			evt.ThreadEntityId = utils.HashTaskID(ctx.HostTid, ctx.StartTime)
+			evt.ProcessEntityId = utils.HashTaskID(ctx.HostPid, ctx.LeaderStartTime)
+			evt.ParentEntityId = utils.HashTaskID(ctx.HostPpid, ctx.ParentStartTime)
 
 			// If there aren't any policies that need filtering in userland, tracker **may** skip
 			// this event, as long as there aren't any derivatives or signatures that depend on it.
@@ -269,7 +269,7 @@ func (t *Tracker) decodeEvents(ctx context.Context, sourceChan chan []byte) (<-c
 
 			select {
 			case out <- evt:
-			case <-ctx.Done():
+			case <-outerCtx.Done():
 				return
 			}
 		}
@@ -527,15 +527,6 @@ func (t *Tracker) deriveEvents(ctx context.Context, in <-chan *trace.Event) (
 				}
 
 				for i := range derivatives {
-					// Passing "derivative" variable here will make the ptr address always
-					// be the same as the last item. This makes the printer to print 2 or
-					// 3 times the last event, instead of printing all derived events
-					// (when there are more than one).
-					//
-					// Nadav: Likely related to https://github.com/golang/go/issues/57969 (GOEXPERIMENT=loopvar).
-					//        Let's keep an eye on that moving from experimental for these and similar cases in tracker.
-					event := &derivatives[i]
-
 					// Skip events that dont work with filtering due to missing types
 					// being handled (https://github.com/khulnasoft-lab/tracker/issues/2486)
 					switch events.ID(derivatives[i].EventID) {
@@ -544,15 +535,17 @@ func (t *Tracker) deriveEvents(ctx context.Context, in <-chan *trace.Event) (
 					case events.PrintMemDump:
 					default:
 						// Derived events might need filtering as well
-						if t.matchPolicies(event) == 0 {
+						if t.matchPolicies(&derivatives[i]) == 0 {
 							_ = t.stats.EventsFiltered.Increment()
 							continue
 						}
 					}
 
-					// Process derived events
-					t.processEvent(event)
-					out <- event
+					// Passing "derivative" variable here will make the ptr address always
+					// be the same as the last item. This makes the printer to print 2 or
+					// 3 times the last event, instead of printing all derived events
+					// (when there are more than one).
+					out <- &derivatives[i]
 				}
 			case <-ctx.Done():
 				return
@@ -701,9 +694,8 @@ func (t *Tracker) parseArguments(e *trace.Event) error {
 		if err != nil {
 			return errfmt.WrapError(err)
 		}
-
 		if t.config.Output.ParseArgumentsFDs {
-			return events.ParseArgsFDs(e, uint64(t.getOrigEvtTimestamp(e)), t.FDArgPathMap)
+			return events.ParseArgsFDs(e, t.FDArgPathMap)
 		}
 	}
 
