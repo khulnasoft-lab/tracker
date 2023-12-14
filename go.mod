@@ -16,7 +16,7 @@ require (
 	github.com/khulnasoft-lab/tracker/api v0.0.0-20231201062514-3154a2eb24e8
 	github.com/khulnasoft-lab/tracker/types v0.0.0-20231201031803-c595a6721eea
 	github.com/kubernetes/cri-api v0.27.1
-	github.com/mennanov/fmutils v0.2.0
+	github.com/mennanov/fmutils v0.2.1
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/open-policy-agent/opa v0.52.0
 	github.com/prometheus/client_golang v1.16.0
